@@ -1,12 +1,36 @@
-name: Sample CI/CD
+name: CI/CD Pipeline for .NET
 
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
-    - run: echo "Hello, GitHub Actions!"
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Publish
+      run: dotnet publish -c Release -o out
+
+    # Example deploy step — you can integrate with Azure, AWS, etc.
+    - name: Deploy to server (placeholder)
+      run: echo "Deploy step goes here"
